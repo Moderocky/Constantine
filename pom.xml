@@ -8,6 +8,7 @@
     <artifactId>constantine</artifactId>
     <version>1.0.0</version>
     <name>Constantine</name>
+    <description>A paradigm for constant conditions in Java.</description>
 
     <properties>
         <maven.compiler.source>18</maven.compiler.source>

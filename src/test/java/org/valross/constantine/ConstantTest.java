@@ -41,7 +41,16 @@ public class ConstantTest {
     }
 
     @Test
-    public void serial() {
+    public void serial() throws Throwable {
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final Constant constant = new Weekday("Tuesday");
+        final Optional<? extends ConstantDesc> optional = constant.describeConstable();
+        assert optional.isPresent();
+        final ConstantDesc desc = optional.get();
+        final Object remade = desc.resolveConstantDesc(lookup);
+        assert remade != null;
+        assert remade instanceof Constant;
+        assert remade instanceof Weekday day && day.equals(constant);
     }
 
     @Test
@@ -57,6 +66,20 @@ public class ConstantTest {
     }
 
     record Day(String name) implements Constant {
+
+        @Override
+        public Constable[] serial() {
+            return new Constable[] {name};
+        }
+
+        @Override
+        public Class<?>[] canonicalParameters() {
+            return new Class[] {String.class};
+        }
+
+    }
+
+    record Weekday(String name) implements RecordConstant {
 
         @Override
         public Constable[] serial() {
