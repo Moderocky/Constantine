@@ -11,13 +11,15 @@ import static java.lang.constant.ConstantDescs.DEFAULT_NAME;
 
 /**
  * A constant (frozen) array of effective constants.
- * <p>
- * Note: in theory
  */
-public record Array(Constable... serial) implements RecordConstant, Constant, Collection<Constable> {
+public record Array(Constable... serial) implements RecordConstant, Constant, Collection<Constable>, Cloneable {
 
     public Array(Constable... serial) {
         this.serial = Arrays.copyOf(serial, serial.length);
+    }
+
+    public Array(Collection<? extends Constable> values) {
+        this(values.toArray(new Constable[0]));
     }
 
     @Override
@@ -115,6 +117,11 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
     @Override
     public void clear() {
         throw new IllegalStateException();
+    }
+
+    @Override
+    public Array clone() {
+        return new Array(serial);
     }
 
     @SuppressWarnings("unchecked")

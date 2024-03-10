@@ -17,7 +17,7 @@ import static java.lang.constant.ConstantDescs.DEFAULT_NAME;
  * for all fields in type (field is FINAL && type of field is CONSTANT)
  * && for all instances of type (instance can be expressed in a definite series of "constables")
  */
-public interface Constant extends Constable, Constantive, Serializable {
+public interface Constant extends Constable, Constantive, Serializable, Cloneable {
 
     ClassDesc CONSTANT_DESC = describe(Constant.class);
     ClassDesc ARRAY_DESC = describe(Array.class);
