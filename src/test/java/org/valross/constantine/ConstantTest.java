@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.lang.constant.Constable;
 import java.lang.constant.ConstantDesc;
+import java.lang.constant.DynamicConstantDesc;
 import java.lang.invoke.MethodHandles;
 import java.util.Optional;
 
@@ -37,7 +38,16 @@ public class ConstantTest {
     }
 
     @Test
-    public void bootstrapArray() {
+    public void bootstrapArray() throws Throwable {
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final Constant constant = new Array(new Day("Tuesday"), new Day("Wednesday"));
+        final Optional<? extends ConstantDesc> optional = constant.describeConstable();
+        assert optional.isPresent();
+        final ConstantDesc desc = optional.get();
+        final Object remade = desc.resolveConstantDesc(lookup);
+        assert remade != null;
+        assert remade instanceof Constant;
+        assert remade instanceof Array array && array.equals(constant);
     }
 
     @Test
@@ -55,14 +65,31 @@ public class ConstantTest {
 
     @Test
     public void canonicalParameters() {
+        final Constant constant = new Day("Tuesday");
+        final Class<?>[] parameters = constant.canonicalParameters();
+        assert parameters.length == 1;
+        assert parameters[0] == String.class;
     }
 
     @Test
     public void describeConstable() {
+        final Constant constant = new Day("Tuesday");
+        final Optional<? extends ConstantDesc> optional = constant.describeConstable();
+        assert optional.isPresent();
+        final ConstantDesc desc = optional.get();
+        assert desc instanceof DynamicConstantDesc<?> dynamic && dynamic.constantType()
+                .descriptorString().equals(Day.class.descriptorString());
     }
 
     @Test
-    public void constant() {
+    public void constant() throws Throwable {
+        final Constant constant = Constant.fromConstable("Hello there");
+        final Optional<? extends ConstantDesc> optional = constant.describeConstable();
+        assert optional.isPresent();
+        final ConstantDesc desc = optional.get();
+        final Object remade = desc.resolveConstantDesc(MethodHandles.lookup());
+        assert remade != null;
+        assert remade instanceof Constant c && c.equals(constant);
     }
 
     record Day(String name) implements Constant {
