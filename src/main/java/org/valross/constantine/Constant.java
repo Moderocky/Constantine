@@ -101,4 +101,19 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         return this;
     }
 
+    static Constant fromConstable(Constable constable) {
+        record ConstantWrapper(Constable constable) implements Constant {
+            @Override
+            public Constable[] serial() {
+                return new Constable[]{constable};
+            }
+
+            @Override
+            public Class<?>[] canonicalParameters() {
+                return new Class<?>[]{Constable.class};
+            }
+        }
+
+        return new ConstantWrapper(constable);
+    }
 }
