@@ -86,12 +86,12 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
 
     @Override
     public boolean add(Constable constable) {
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean remove(Object o) {
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -101,22 +101,22 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
 
     @Override
     public boolean addAll(Collection<? extends Constable> c) {
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void clear() {
-        throw new IllegalStateException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
