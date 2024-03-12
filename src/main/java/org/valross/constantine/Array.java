@@ -131,4 +131,16 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
         return array;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Array that = (Array) o;
+        return Arrays.equals(serial, that.serial);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(serial);
+    }
 }
