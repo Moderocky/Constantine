@@ -1,6 +1,8 @@
 package org.valross.constantine;
 
 
+import org.jetbrains.annotations.Contract;
+
 import java.lang.constant.Constable;
 import java.lang.constant.ConstantDesc;
 import java.util.Optional;
@@ -12,6 +14,7 @@ import java.util.Optional;
  */
 public interface Constantive extends Constable {
 
+    @Contract(pure = true)
     Constant constant();
 
     default @Override

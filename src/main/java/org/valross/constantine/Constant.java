@@ -1,5 +1,7 @@
 package org.valross.constantine;
 
+import org.jetbrains.annotations.Contract;
+
 import java.io.Serializable;
 import java.lang.constant.*;
 import java.lang.invoke.MethodHandle;
@@ -21,8 +23,10 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
 
     ClassDesc CONSTANT_DESC = describe(Constant.class);
     ClassDesc ARRAY_DESC = describe(Array.class);
-    DirectMethodHandleDesc BOOTSTRAP_MAKE = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrap", CONSTANT_DESC, describe(Object[].class));
-    DirectMethodHandleDesc BOOTSTRAP_ARRAY = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrapArray", ARRAY_DESC, describe(Object[].class));
+    DirectMethodHandleDesc BOOTSTRAP_MAKE = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrap",
+        CONSTANT_DESC, describe(Object[].class));
+    DirectMethodHandleDesc BOOTSTRAP_ARRAY = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrapArray",
+        ARRAY_DESC, describe(Object[].class));
 
     static boolean isConstant(Class<?> type) {
         if (isJavaConstant(type)) return true;
@@ -58,25 +62,32 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         return ClassDesc.ofDescriptor(type.descriptorString());
     }
 
-    static Constant bootstrap(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial) throws Throwable {
+    static Constant bootstrap(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial)
+        throws Throwable {
         final Array parameters = (Array) serial[0];
         final Object[] arguments = new Object[serial.length - 1];
         System.arraycopy(serial, 1, arguments, 0, serial.length - 1);
-        final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class, parameters.toArray(Class.class)));
+        final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class,
+            parameters.toArray(Class.class)));
         return (Constant) constructor.invokeWithArguments(arguments);
     }
 
-    static Array bootstrapArray(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial) throws Throwable {
-        final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class, Constable[].class));
+    static Array bootstrapArray(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial)
+        throws Throwable {
+        final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class,
+            Constable[].class));
         return (Array) constructor.invokeWithArguments(serial);
     }
 
+    @Contract(pure = true)
     default boolean validate() {
         return isConstant(this.getClass()) && hasCanonicalConstructor(this.getClass(), this.canonicalParameters());
     }
 
+    @Contract(pure = true)
     Constable[] serial() throws Throwable;
 
+    @Contract(pure = true)
     Class<?>[] canonicalParameters();
 
     default @Override Optional<? extends ConstantDesc> describeConstable() {
@@ -94,26 +105,31 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
             else arguments[i + 1] = constable.describeConstable().orElse(null);
         }
         arguments[0] = new Array(this.canonicalParameters()).describeConstable().orElse(null);
-        return Optional.of(DynamicConstantDesc.ofNamed(BOOTSTRAP_MAKE, DEFAULT_NAME, describe(this.getClass()), arguments));
+        return Optional.of(DynamicConstantDesc.ofNamed(BOOTSTRAP_MAKE, DEFAULT_NAME, describe(this.getClass()),
+            arguments));
     }
 
+    @Contract(pure = true)
     default @Override Constant constant() {
         return this;
     }
 
     static Constant fromConstable(Constable constable) {
         record ConstantWrapper(Constable constable) implements Constant {
+
             @Override
             public Constable[] serial() {
-                return new Constable[]{constable};
+                return new Constable[] {constable};
             }
 
             @Override
             public Class<?>[] canonicalParameters() {
-                return new Class<?>[]{Constable.class};
+                return new Class<?>[] {Constable.class};
             }
+
         }
 
         return new ConstantWrapper(constable);
     }
+
 }
