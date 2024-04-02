@@ -78,7 +78,9 @@ public class ConstantTest {
         assert optional.isPresent();
         final ConstantDesc desc = optional.get();
         assert desc instanceof DynamicConstantDesc<?> dynamic && dynamic.constantType()
-                .descriptorString().equals(Day.class.descriptorString());
+                                                                        .descriptorString()
+                                                                        .equals(Day.class.descriptorString());
+        assert new Blob("hello", 5).describeConstable().isPresent();
     }
 
     @Test
@@ -120,5 +122,8 @@ public class ConstantTest {
 
     }
 
+    public record Blob(String name, int number) implements RecordConstant {
+
+    }
 
 }
