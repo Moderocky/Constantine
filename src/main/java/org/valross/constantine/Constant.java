@@ -24,9 +24,9 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
     ClassDesc CONSTANT_DESC = describe(Constant.class);
     ClassDesc ARRAY_DESC = describe(Array.class);
     DirectMethodHandleDesc BOOTSTRAP_MAKE = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrap",
-        CONSTANT_DESC, describe(Object[].class));
+                                                                              CONSTANT_DESC, describe(Object[].class));
     DirectMethodHandleDesc BOOTSTRAP_ARRAY = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrapArray",
-        ARRAY_DESC, describe(Object[].class));
+                                                                               ARRAY_DESC, describe(Object[].class));
 
     static boolean isConstant(Class<?> type) {
         if (isJavaConstant(type)) return true;
@@ -55,7 +55,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
     }
 
     private static boolean isJavaConstant(Class<?> type) {
-        return type.isPrimitive() || type.isEnum() || type == Record.class || (Constable.class.isAssignableFrom(type) && type.getPackageName().startsWith("java."));
+        return type.isPrimitive() || type.isEnum() || type == Record.class || (Constable.class.isAssignableFrom(type) && type.getPackageName()
+                                                                                                                             .startsWith("java."));
     }
 
     static ClassDesc describe(Class<?> type) {
@@ -64,18 +65,17 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
 
     static Constant bootstrap(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial)
         throws Throwable {
-        final Array parameters = (Array) serial[0];
+        final MethodType signature = (MethodType) serial[0];
         final Object[] arguments = new Object[serial.length - 1];
         System.arraycopy(serial, 1, arguments, 0, serial.length - 1);
-        final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class,
-            parameters.toArray(Class.class)));
+        final MethodHandle constructor = lookup.findConstructor(type, signature);
         return (Constant) constructor.invokeWithArguments(arguments);
     }
 
     static Array bootstrapArray(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial)
         throws Throwable {
         final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class,
-            Constable[].class));
+                                                                                            Constable[].class));
         return (Array) constructor.invokeWithArguments(serial);
     }
 
@@ -104,9 +104,9 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
             if (constable instanceof ConstantDesc self) arguments[i + 1] = self;
             else arguments[i + 1] = constable.describeConstable().orElse(null);
         }
-        arguments[0] = new Array(this.canonicalParameters()).describeConstable().orElse(null);
+        arguments[0] = MethodType.methodType(void.class, this.canonicalParameters()).describeConstable().orElse(null);
         return Optional.of(DynamicConstantDesc.ofNamed(BOOTSTRAP_MAKE, DEFAULT_NAME, describe(this.getClass()),
-            arguments));
+                                                       arguments));
     }
 
     @Contract(pure = true)
