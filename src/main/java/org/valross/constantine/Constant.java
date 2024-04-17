@@ -139,7 +139,7 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
     interface UnitConstant extends Constant {
 
         @Override
-        default Constable[] serial() {
+        default Constable[] serial() throws Throwable {
             return new Constable[0];
         }
 
