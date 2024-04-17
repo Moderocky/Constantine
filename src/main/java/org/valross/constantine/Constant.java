@@ -132,4 +132,22 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         return new ConstantWrapper(constable);
     }
 
+    /**
+     * A constant interface for a unit type: a type that allows only one value and holds no information.
+     * This would be a class with no possible constructor arguments and only constant fields.
+     */
+    interface UnitConstant extends Constant {
+
+        @Override
+        default Constable[] serial() {
+            return new Constable[0];
+        }
+
+        @Override
+        default Class<?>[] canonicalParameters() {
+            return new Class[0];
+        }
+
+    }
+
 }
