@@ -25,6 +25,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
     ClassDesc ARRAY_DESC = describe(Array.class);
     DirectMethodHandleDesc BOOTSTRAP_MAKE = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrap",
                                                                               CONSTANT_DESC, describe(Object[].class));
+    DirectMethodHandleDesc BOOTSTRAP_CANON = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrapCanonical",
+                                                                               CONSTANT_DESC, describe(Object[].class));
     DirectMethodHandleDesc BOOTSTRAP_ARRAY = ConstantDescs.ofConstantBootstrap(CONSTANT_DESC, "bootstrapArray",
                                                                                ARRAY_DESC, describe(Object[].class));
 
@@ -72,46 +74,20 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         return (Constant) constructor.invokeWithArguments(arguments);
     }
 
+    static Constant bootstrapCanonical(MethodHandles.Lookup lookup, String name, Class<?> type, Object... serial)
+        throws Throwable {
+        final MethodType signature = (MethodType) serial[0];
+        final Object[] arguments = new Object[serial.length - 1];
+        System.arraycopy(serial, 1, arguments, 0, serial.length - 1);
+        final MethodHandle constructor = lookup.findStatic(type, name, signature);
+        return (Constant) constructor.invokeWithArguments(arguments);
+    }
+
     static Array bootstrapArray(MethodHandles.Lookup lookup, String ignored, Class<?> type, Object... serial)
         throws Throwable {
         final MethodHandle constructor = lookup.findConstructor(type, MethodType.methodType(void.class,
                                                                                             Constable[].class));
         return (Array) constructor.invokeWithArguments(serial);
-    }
-
-    @Contract(pure = true)
-    default boolean validate() {
-        return isConstant(this.getClass()) && hasCanonicalConstructor(this.getClass(), this.canonicalParameters());
-    }
-
-    @Contract(pure = true)
-    Constable[] serial() throws Throwable;
-
-    @Contract(pure = true)
-    Class<?>[] canonicalParameters();
-
-    default @Override Optional<? extends ConstantDesc> describeConstable() {
-        assert this.validate(); // test only, make sure this is actually what it pretends to be
-        final Constable[] constables;
-        try {
-            constables = this.serial();
-        } catch (Throwable e) {
-            throw new ConstantDeconstructionError(e);
-        }
-        final ConstantDesc[] arguments = new ConstantDesc[constables.length + 1];
-        for (int i = 0; i < constables.length; i++) {
-            final Constable constable = constables[i];
-            if (constable instanceof ConstantDesc self) arguments[i + 1] = self;
-            else arguments[i + 1] = constable.describeConstable().orElse(null);
-        }
-        arguments[0] = MethodType.methodType(void.class, this.canonicalParameters()).describeConstable().orElse(null);
-        return Optional.of(DynamicConstantDesc.ofNamed(BOOTSTRAP_MAKE, DEFAULT_NAME, describe(this.getClass()),
-                                                       arguments));
-    }
-
-    @Contract(pure = true)
-    default @Override Constant constant() {
-        return this;
     }
 
     static Constant fromConstable(Constable constable) {
@@ -130,6 +106,29 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         }
 
         return new ConstantWrapper(constable);
+    }
+
+    @Contract(pure = true)
+    default boolean validate() {
+        return isConstant(this.getClass()) && hasCanonicalConstructor(this.getClass(), this.canonicalParameters());
+    }
+
+    @Contract(pure = true)
+    Constable[] serial() throws Throwable;
+
+    @Contract(pure = true)
+    Class<?>[] canonicalParameters();
+
+    default @Override Optional<? extends ConstantDesc> describeConstable() {
+        assert this.validate(); // test only, make sure this is actually what it pretends to be
+        final ConstantDesc[] arguments = Utilities.getArguments(this);
+        return Optional.of(DynamicConstantDesc.ofNamed(BOOTSTRAP_MAKE, DEFAULT_NAME, describe(this.getClass()),
+                                                       arguments));
+    }
+
+    @Contract(pure = true)
+    default @Override Constant constant() {
+        return this;
     }
 
     /**

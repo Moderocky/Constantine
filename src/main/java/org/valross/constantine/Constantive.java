@@ -1,6 +1,5 @@
 package org.valross.constantine;
 
-
 import org.jetbrains.annotations.Contract;
 
 import java.lang.constant.Constable;

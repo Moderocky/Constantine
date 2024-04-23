@@ -143,4 +143,5 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
     public int hashCode() {
         return Arrays.hashCode(serial);
     }
+
 }
