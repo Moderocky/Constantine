@@ -69,8 +69,8 @@ public interface Canonical<Type extends Constant & Canonical<Type>> extends Cons
         assert this.validate(); // test only, make sure this is actually what it pretends to be
         final ConstantDesc[] arguments = Utilities.getArguments(this);
         return Optional.of(DynamicConstantDesc.ofNamed(BOOTSTRAP_CANON, this.factoryMethodName(),
-                                                       Constant.describe(this.getClass()),
-                                                       arguments));
+            Constant.describe(this.getClass()),
+            arguments));
     }
 
     /**
