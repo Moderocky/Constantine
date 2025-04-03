@@ -25,4 +25,12 @@ final class Utilities {
         return arguments;
     }
 
+    static void unwrapArray(Object[] array, MethodType type) {
+        for (int i = 0; i < array.length; i++) {
+            Class<?> parameterType = type.parameterType(i);
+            if (parameterType.isArray() && array[i] instanceof Array wrapper)
+                array[i] = wrapper.toArray(parameterType.componentType());
+        }
+    }
+
 }

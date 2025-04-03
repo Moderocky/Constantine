@@ -32,6 +32,7 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
 
     static boolean isConstant(Class<?> type) {
         if (isJavaConstant(type)) return true;
+        if (type.isArray()) return isConstant(type.getComponentType());
         if (!Constant.class.isAssignableFrom(type)) return false;
         for (Field field : type.getFields()) {
             final int modifiers = field.getModifiers();
@@ -70,7 +71,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         final MethodType signature = (MethodType) serial[0];
         final Object[] arguments = new Object[serial.length - 1];
         System.arraycopy(serial, 1, arguments, 0, serial.length - 1);
-        final MethodHandle constructor = lookup.findConstructor(type, signature);
+        final MethodHandle constructor = lookup.findConstructor(type, signature).asFixedArity();
+        Utilities.unwrapArray(arguments, signature);
         return (Constant) constructor.invokeWithArguments(arguments);
     }
 
@@ -79,7 +81,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         final MethodType signature = (MethodType) serial[0];
         final Object[] arguments = new Object[serial.length - 1];
         System.arraycopy(serial, 1, arguments, 0, serial.length - 1);
-        final MethodHandle constructor = lookup.findStatic(type, name, signature);
+        final MethodHandle constructor = lookup.findStatic(type, name, signature).asFixedArity();
+        Utilities.unwrapArray(arguments, signature);
         return (Constant) constructor.invokeWithArguments(arguments);
     }
 
@@ -110,7 +113,12 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
 
     @Contract(pure = true)
     default boolean validate() {
-        return isConstant(this.getClass()) && hasCanonicalConstructor(this.getClass(), this.canonicalParameters());
+        boolean constant = isConstant(this.getClass());
+        assert constant : "Not a constant type: " + this.getClass();
+        boolean hasCanonicalConstructor = hasCanonicalConstructor(this.getClass(), this.canonicalParameters());
+        assert hasCanonicalConstructor : "Missing canonical constructor: " + this.getClass();
+        //noinspection ConstantValue
+        return constant && hasCanonicalConstructor;
     }
 
     @Contract(pure = true)
@@ -120,7 +128,7 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
     Class<?>[] canonicalParameters();
 
     default @Override Optional<? extends ConstantDesc> describeConstable() {
-        assert this.validate(); // test only, make sure this is actually what it pretends to be
+        assert this.validate() : this; // test only, make sure this is actually what it pretends to be
         final ConstantDesc[] arguments = Utilities.getArguments(this);
         return Optional.of(
             DynamicConstantDesc.ofNamed(BOOTSTRAP_MAKE, DEFAULT_NAME, describe(this.getClass()), arguments)

@@ -20,7 +20,12 @@ public interface RecordConstant extends Constantive, Constant {
         final Constable[] arguments = new Constable[components.length];
         for (int i = 0; i < components.length; i++) {
             final MethodHandle handle = lookup.unreflect(components[i].getAccessor());
-            arguments[i] = (Constable) handle.invokeWithArguments(this);
+            Object object = handle.invokeWithArguments(this);
+            if (object instanceof Constable constable)
+                arguments[i] = constable;
+            else if (object instanceof Constable[] array)
+                arguments[i] = new Array(array);
+            else throw new ConstantDeconstructionError();
         }
         return arguments;
     }
