@@ -78,7 +78,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
 
     static Constant bootstrapCanonical(MethodHandles.Lookup lookup, String name, Class<?> type, Object... serial)
     throws Throwable {
-        final MethodType signature = (MethodType) serial[0];
+        MethodType signature = (MethodType) serial[0];
+        signature = signature.changeReturnType(type);
         final Object[] arguments = new Object[serial.length - 1];
         System.arraycopy(serial, 1, arguments, 0, serial.length - 1);
         final MethodHandle constructor = lookup.findStatic(type, name, signature).asFixedArity();
