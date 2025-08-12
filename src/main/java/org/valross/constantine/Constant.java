@@ -46,7 +46,7 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
 
     private static boolean hasCanonicalConstructor(Class<?> type, Class<?>... parameters) {
         try {
-            MethodHandles.lookup().findConstructor(type, MethodType.methodType(void.class, parameters));
+            MethodHandles.privateLookupIn(type, MethodHandles.lookup()).findConstructor(type, MethodType.methodType(void.class, parameters));
             return true;
         } catch (NoSuchMethodException | IllegalAccessException e) {
             return false;

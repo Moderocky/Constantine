@@ -1,6 +1,15 @@
 package org.valross.constantine;
 
+import java.lang.constant.Constable;
+
 public abstract class ConstantError extends Error {
+
+    protected Class<? extends Constable> cause;
+
+    public ConstantError(Class<? extends Constable> cause) {
+        this();
+        this.cause = cause;
+    }
 
     public ConstantError() {
         super();
@@ -18,9 +27,17 @@ public abstract class ConstantError extends Error {
         super(cause);
     }
 
+    public Class<? extends Constable> getCauser() {
+        return cause;
+    }
+
 }
 
 class ConstantConstructionError extends ConstantError {
+
+    public ConstantConstructionError(Class<? extends Constable> cause) {
+        super(cause);
+    }
 
     public ConstantConstructionError() {
         super();
@@ -36,11 +53,20 @@ class ConstantConstructionError extends ConstantError {
 
     public ConstantConstructionError(Throwable cause) {
         super(cause);
+        if (cause instanceof ConstantError error)
+            this.cause = error.cause;
     }
 
 }
 
 class ConstantDeconstructionError extends ConstantError {
+
+    Class<?> target;
+
+    public ConstantDeconstructionError(Class<? extends Constable> cause, Class<?> target) {
+        super(cause);
+        this.target = target;
+    }
 
     public ConstantDeconstructionError() {
         super();
@@ -56,6 +82,12 @@ class ConstantDeconstructionError extends ConstantError {
 
     public ConstantDeconstructionError(Throwable cause) {
         super(cause);
+        if (cause instanceof ConstantDeconstructionError error)
+            this.target = error.target;
+    }
+
+    public Class<?> getTarget() {
+        return target;
     }
 
 }

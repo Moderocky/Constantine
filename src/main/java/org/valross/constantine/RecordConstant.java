@@ -14,7 +14,7 @@ public interface RecordConstant extends Constantive, Constant {
 
     default @Override
     Constable[] serial() throws Throwable {
-        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(this.getClass(), MethodHandles.lookup());
         final Class<?> us = this.getClass();
         final RecordComponent[] components = us.getRecordComponents();
         final Constable[] arguments = new Constable[components.length];
@@ -25,7 +25,9 @@ public interface RecordConstant extends Constantive, Constant {
                 arguments[i] = constable;
             else if (object instanceof Constable[] array)
                 arguments[i] = new Array(array);
-            else throw new ConstantDeconstructionError();
+            else if (object == null)
+                arguments[i] = null;
+            else throw new ConstantDeconstructionError(this.getClass(), object.getClass());
         }
         return arguments;
     }
