@@ -6,6 +6,7 @@ import java.lang.constant.Constable;
 import java.lang.constant.ConstantDesc;
 import java.lang.constant.DynamicConstantDesc;
 import java.lang.invoke.MethodHandles;
+import java.util.Objects;
 import java.util.Optional;
 
 public class ConstantTest {
@@ -78,8 +79,8 @@ public class ConstantTest {
         assert optional.isPresent();
         final ConstantDesc desc = optional.get();
         assert desc instanceof DynamicConstantDesc<?> dynamic && dynamic.constantType()
-                                                                        .descriptorString()
-                                                                        .equals(Day.class.descriptorString());
+            .descriptorString()
+            .equals(Day.class.descriptorString());
         assert new Blob("hello", 5).describeConstable().isPresent();
     }
 
@@ -92,6 +93,32 @@ public class ConstantTest {
         final Object remade = desc.resolveConstantDesc(MethodHandles.lookup());
         assert remade != null;
         assert remade instanceof Constant c && c.equals(constant);
+    }
+
+    @Test
+    public void types() throws Throwable {
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final Constant constant = new All("A", 1, true, 'c', 4.0F, 5.0, 6L, (short) 7, (byte) 8);
+        final Optional<? extends ConstantDesc> optional = constant.describeConstable();
+        assert optional.isPresent();
+        final ConstantDesc desc = optional.get();
+        final Object remade = desc.resolveConstantDesc(lookup);
+        assert remade != null;
+        assert remade instanceof Constant;
+        assert remade instanceof All all && all.equals(constant);
+    }
+
+    @Test
+    public void arrays() throws Throwable {
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final Constant constant = new Arrays(new String[] {"a", "b"}, true);
+        final Optional<? extends ConstantDesc> optional = constant.describeConstable();
+        assert optional.isPresent();
+        final ConstantDesc desc = optional.get();
+        final Object remade = desc.resolveConstantDesc(lookup);
+        assert remade != null;
+        assert remade instanceof Constant;
+        assert remade instanceof Arrays arrays && arrays.equals(constant);
     }
 
     record Day(String name) implements Constant {
@@ -123,6 +150,26 @@ public class ConstantTest {
     }
 
     public record Blob(String name, int number) implements RecordConstant {
+
+    }
+
+    public record All(String a, int b, boolean c, char d, float e, double f, long g, short h,
+                      byte i) implements RecordConstant {
+
+    }
+
+    public record Arrays(String[] strings, boolean b) implements RecordConstant {
+
+        @Override
+        public boolean equals(Object object) {
+            if (!(object instanceof Arrays arrays)) return false;
+            return b == arrays.b && Objects.deepEquals(strings, arrays.strings);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(java.util.Arrays.hashCode(strings), b);
+        }
 
     }
 
