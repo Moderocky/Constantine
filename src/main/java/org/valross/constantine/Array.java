@@ -9,9 +9,7 @@ import java.util.*;
 
 import static java.lang.constant.ConstantDescs.DEFAULT_NAME;
 
-/**
- * A constant (frozen) array of effective constants.
- */
+/// A constant (frozen) array of effective constants.
 public record Array(Constable... serial) implements RecordConstant, Constant, Collection<Constable>, Cloneable {
 
     public Array(Constable... serial) {

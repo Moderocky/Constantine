@@ -13,12 +13,10 @@ import java.util.Optional;
 
 import static java.lang.constant.ConstantDescs.DEFAULT_NAME;
 
-/**
- * A CONSTANT is a VALUE class.
- * A type is CONSTANT iff:
- * for all fields in type (field is FINAL && type of field is CONSTANT)
- * && for all instances of type (instance can be expressed in a definite series of "constables")
- */
+/// A CONSTANT is a VALUE class.
+/// A type is CONSTANT iff:
+/// for all fields in type (field is FINAL && type of field is CONSTANT)
+/// && for all instances of type (instance can be expressed in a definite series of "constables")
 public interface Constant extends Constable, Constantive, Serializable, Cloneable {
 
     ClassDesc CONSTANT_DESC = describe(Constant.class);
@@ -37,6 +35,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         for (Field field : type.getFields()) {
             final int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers)) continue;
+            if (Modifier.isTransient(modifiers)) continue;
+            if ((modifiers & 0x00001000) != 0) continue;
             if (!Modifier.isFinal(modifiers)) return false;
             if (!isConstant(field.getType())) return false;
         }
@@ -141,10 +141,8 @@ public interface Constant extends Constable, Constantive, Serializable, Cloneabl
         return this;
     }
 
-    /**
-     * A constant interface for a unit type: a type that allows only one value and holds no information.
-     * This would be a class with no possible constructor arguments and only constant fields.
-     */
+    /// A constant interface for a unit type: a type that allows only one value and holds no information.
+    /// This would be a class with no possible constructor arguments and only constant fields.
     interface UnitConstant extends Constant {
 
         @Override

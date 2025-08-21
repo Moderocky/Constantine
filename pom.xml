@@ -6,13 +6,13 @@
 
     <groupId>org.valross</groupId>
     <artifactId>constantine</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <name>Constantine</name>
     <description>A paradigm for constant conditions in Java.</description>
 
     <properties>
-        <maven.compiler.source>18</maven.compiler.source>
-        <maven.compiler.target>18</maven.compiler.target>
+        <maven.compiler.source>23</maven.compiler.source>
+        <maven.compiler.target>23</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 

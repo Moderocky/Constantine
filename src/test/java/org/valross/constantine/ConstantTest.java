@@ -158,7 +158,7 @@ public class ConstantTest {
 
     }
 
-    public record Arrays(String[] strings, boolean b) implements RecordConstant {
+    public record Arrays(Constable[] strings, boolean b) implements RecordConstant {
 
         @Override
         public boolean equals(Object object) {

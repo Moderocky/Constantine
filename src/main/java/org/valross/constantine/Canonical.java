@@ -8,19 +8,17 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Optional;
 
-/**
- * A canonical constant is one that has a universal set of unique, interned references.
- * I.e. like {@link String}s, there can be a unique object for each value.
- * Ideally, such constants will also have some factory method for producing them.
- * <br/>
- * <br/>
- * A canonical constant class <b>MUST</b> declare a static factory method: i.e. a method for obtaining an instance
- * (ideally the interned instance) using its constituent parts.
- *
- * @param <Type> The extending class (self-referential)
- * @see #factoryMethodName()
- * @see #intern()
- */
+/// A canonical constant is one that has a universal set of unique, interned references.
+/// I.e. like [String]s, there can be a unique object for each value.
+/// Ideally, such constants will also have some factory method for producing them.
+///
+///
+/// A canonical constant class **MUST** declare a static factory method: i.e. a method for obtaining an instance
+/// (ideally the interned instance) using its constituent parts.
+///
+/// @param <Type> The extending class (self-referential)
+/// @see #factoryMethodName()
+/// @see #intern()
 public interface Canonical<Type extends Constant & Canonical<Type>> extends Constant {
 
     private static boolean hasCanonicalFactory(Class<?> type, String name, Class<?>... parameters) {
@@ -32,30 +30,26 @@ public interface Canonical<Type extends Constant & Canonical<Type>> extends Cons
         }
     }
 
-    /**
-     * Returns the interned canonical representation of this object.
-     * <br/>
-     * <br/>
-     * An interned canonical representation is a constant instance representing a value
-     * such that it is the only interned canonical instance representing that value.
-     * Interning different instances representing the same value must return the same interned instance.
-     * Interned instances may be identical to non-interned instances for the same value.
-     * <p>
-     * For any {@code this instanceof Canonical && that instanceof Canonical && this.equals(that)}
-     * it must be true that:
-     * <ol>
-     *     <li>{@code this.equals(this.intern())}</li>
-     *     <li>{@code this.equals(that.intern())}</li>
-     *     <li>{@code this.intern() == this.intern()}</li>
-     *     <li>{@code this.intern() == that.intern()}</li>
-     * </ol>
-     * <p>
-     * An object may be its interned reference: {@code this.intern() == this.intern().intern()}
-     *
-     * @return an object that has the same contents as this, but is
-     * guaranteed to be in the universal canonical set
-     * @see String#intern()
-     */
+    /// Returns the interned canonical representation of this object.
+    ///
+    ///
+    /// An interned canonical representation is a constant instance representing a value
+    /// such that it is the only interned canonical instance representing that value.
+    /// Interning different instances representing the same value must return the same interned instance.
+    /// Interned instances may be identical to non-interned instances for the same value.
+    ///
+    /// For any `this instanceof Canonical && that instanceof Canonical && this.equals(that)`
+    /// it must be true that:
+    ///   - `this.equals(this.intern())`
+    ///   - `this.equals(that.intern())`
+    ///   - `this.intern() == this.intern()`
+    ///   - `this.intern() == that.intern()`
+    ///
+    /// An object may be its interned reference: `this.intern() == this.intern().intern()`
+    ///
+    /// @return an object that has the same contents as this, but is
+    /// guaranteed to be in the universal canonical set
+    /// @see String#intern()
     Type intern();
 
     @Contract(pure = true)
@@ -73,18 +67,16 @@ public interface Canonical<Type extends Constant & Canonical<Type>> extends Cons
             arguments));
     }
 
-    /**
-     * The name of the <b>PUBLIC, STATIC</b> method in the declaring class which produces an instance of the object.
-     * This is typically {@code public static T valueOf(...)}.
-     * <p>
-     * A factory method <i>can</i> simply return a new instance, but it is advised to return
-     * the interned canonical reference where possible.
-     *
-     * @return The name of the factory method
-     * @see Boolean#valueOf(boolean)
-     * @see Integer#valueOf(int)
-     * @see String#valueOf(char[])
-     */
+    /// The name of the **PUBLIC, STATIC** method in the declaring class which produces an instance of the object.
+    /// This is typically `public static T valueOf(...)`.
+    ///
+    /// A factory method _can_ simply return a new instance, but it is advised to return
+    /// the interned canonical reference where possible.
+    ///
+    /// @return The name of the factory method
+    /// @see Boolean#valueOf(boolean)
+    /// @see Integer#valueOf(int)
+    /// @see String#valueOf(char[])
     default String factoryMethodName() {
         return "valueOf";
     }

@@ -2,6 +2,8 @@ package org.valross.constantine;
 
 import java.lang.constant.Constable;
 
+/// An error related to the validation,
+/// disassembly, or re-creation of a constant value.
 public abstract class ConstantError extends Error {
 
     protected Class<? extends Constable> cause;

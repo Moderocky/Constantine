@@ -5,6 +5,12 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.RecordComponent;
 
+/// A constant record type.
+/// Record constants store their component types in deconstruction
+/// and use their canonical constructor for creation.
+///
+/// @see Constant
+/// @see Constable
 public interface RecordConstant extends Constantive, Constant {
 
     @Override
