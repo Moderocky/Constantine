@@ -29,7 +29,7 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
 
     @Override
     public Class<?>[] canonicalParameters() {
-        return new Class[] {Constable[].class};
+        return new Class[]{Constable[].class};
     }
 
     @Override
@@ -132,9 +132,20 @@ public record Array(Constable... serial) implements RecordConstant, Constant, Co
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Array that = (Array) o;
-        return Arrays.equals(serial, that.serial);
+        if (o instanceof Array(Constable[] other))
+            return Arrays.equals(serial, other);
+        if (o instanceof Collection<?> collection) {
+            if (collection.size() != serial.length) return false;
+            Iterator<?> iterator = collection.iterator();
+            for (Constable constable : serial) {
+                assert iterator.hasNext();
+                if (!Objects.equals(iterator.next(), constable))
+                    return false;
+            }
+            assert !iterator.hasNext();
+            return true;
+        }
+        return false;
     }
 
     @Override
